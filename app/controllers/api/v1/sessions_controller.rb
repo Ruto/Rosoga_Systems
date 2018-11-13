@@ -10,13 +10,16 @@
            if params[:email]
              @user = User.where(email: params[:email]).first
            else
-             @user = User.where(email: params[:email]).first if params[:username]
+             @user = User.where(email: params[:username]).first if params[:username]
            end
 
            if @user&.valid_password?(params[:password])
               render json: @user.as_json(only: [:id, :email, :authentication_token]), status: :created
-            else
-              head(:unauthorized)
+            elsif @user != nil
+              render json: {status: :unauthorized, code: 4001, message: "Password is incorrect"}   
+            elsif @user == nil
+              render json: {status: "error", code: 4000, message: "Username is incorrect"}
+
             end
 
        end
